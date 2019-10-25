@@ -45,6 +45,10 @@ namespace BadgerysCreekHotel.Controllers
 
             return View(booking);
         }
+        public async Task<IActionResult> Search([Bind("BedCount,CheckIn,CheckOut")] Booking booking)
+        {
+            return View(booking);
+        }
 
         // GET: Bookings/Create
         public IActionResult Create()
