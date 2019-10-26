@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using BadgerysCreekHotel.Data;
 using BadgerysCreekHotel.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.Data.Sqlite;
 
 namespace BadgerysCreekHotel.Controllers
 {
@@ -148,6 +150,35 @@ namespace BadgerysCreekHotel.Controllers
         private bool RoomExists(int id)
         {
             return _context.Room.Any(e => e.ID == id);
+        }
+
+        // GET: MovieGoers/PeopleDiff
+        [AllowAnonymous]
+        public IActionResult Search()
+        {
+            // Get the options for the MovieGoer select list from the database
+            // and save them in ViewBag for passing to View
+            ViewBag.Search = new SelectList(_context.Room, "Email", "Name");
+            return View();
+        }
+
+
+        [HttpPost, ValidateAntiForgeryToken]
+        [AllowAnonymous]
+        [Authorize(Roles = "Customers")]
+        public async Task<IActionResult> Search(SearchRooms basicSearch)
+        {
+            var bed = new SqliteParameter("bed", basicSearch.roomBedCount);
+            var cin = new SqliteParameter("in", basicSearch.BookingCheckIn);
+            var cout = new SqliteParameter("out", basicSearch.BookingCheckOut);
+            var searchRooms = _context.Room.FromSql("select * from [Room] "
+                               + "where [Room].BedCount = @bed and [Room].ID not in "
+                               + "(select [Room].ID from [Room] inner join [Booking] on [Room].ID = [Booking].RoomID where "
+                               + "[Booking].CheckIn < @out AND @in < [Booking].CheckOut)", bed, cin, cout)
+                           .Select(r => new Room { ID = r.ID, Level = r.Level, BedCount = r.BedCount, Price = r.Price });
+            ViewBag.result = await searchRooms.ToListAsync();
+            return View(basicSearch);
+
         }
     }
 }

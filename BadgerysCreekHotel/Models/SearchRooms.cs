@@ -21,7 +21,5 @@ namespace BadgerysCreekHotel.Models
         [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
         public DateTime BookingCheckOut { get; set; }
 
-   
-
     }
 }

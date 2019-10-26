@@ -8,9 +8,11 @@ using Microsoft.EntityFrameworkCore;
 using BadgerysCreekHotel.Data;
 using BadgerysCreekHotel.Models;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 
 namespace BadgerysCreekHotel.Controllers
-{
+{   
+    [Authorize(Roles = "Customers" )]
     public class CustomersController : Controller
     {
         private readonly ApplicationDbContext _context;
